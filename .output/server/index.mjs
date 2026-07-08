@@ -15,13 +15,6 @@ globalThis.__nitro_vite_envs__ = services;
 //#endregion
 //#region #nitro/virtual/public-assets-data
 var public_assets_data_default = {
-	"/icons.svg": {
-		"type": "image/svg+xml",
-		"etag": "\"13a7-+Yl6wl4T3p6mAdLxrF2TU9++/No\"",
-		"mtime": "2026-07-08T07:56:48.407Z",
-		"size": 5031,
-		"path": "../public/icons.svg"
-	},
 	"/favicon.svg": {
 		"type": "image/svg+xml",
 		"etag": "\"2532-P1u486agW3ymimJYHS3VvIiBLK8\"",
@@ -29,52 +22,59 @@ var public_assets_data_default = {
 		"size": 9522,
 		"path": "../public/favicon.svg"
 	},
-	"/assets/index-BEN1_vOs.js": {
-		"type": "text/javascript; charset=utf-8",
-		"etag": "\"544d4-0ojddGQqJONUoa+799ekypXG//U\"",
-		"mtime": "2026-07-08T12:29:37.304Z",
-		"size": 345300,
-		"path": "../public/assets/index-BEN1_vOs.js"
+	"/icons.svg": {
+		"type": "image/svg+xml",
+		"etag": "\"13a7-+Yl6wl4T3p6mAdLxrF2TU9++/No\"",
+		"mtime": "2026-07-08T07:56:48.407Z",
+		"size": 5031,
+		"path": "../public/icons.svg"
 	},
 	"/assets/styles-PWrv6qXI.css": {
 		"type": "text/css; charset=utf-8",
 		"etag": "\"14ae2-jRb7zTeQDqjQGYhN0VMCisbdQ20\"",
-		"mtime": "2026-07-08T12:29:37.353Z",
+		"mtime": "2026-07-08T12:45:17.030Z",
 		"size": 84706,
 		"path": "../public/assets/styles-PWrv6qXI.css"
 	},
 	"/assets/olive-hero-K_nx2phI.jpg": {
 		"type": "image/jpeg",
 		"etag": "\"1a0fd-meNUuzIL6Rz8I/RiffPDWupuSJ8\"",
-		"mtime": "2026-07-08T12:29:37.342Z",
+		"mtime": "2026-07-08T12:45:17.024Z",
 		"size": 106749,
 		"path": "../public/assets/olive-hero-K_nx2phI.jpg"
-	},
-	"/assets/routes-BVT7FvhC.js": {
-		"type": "text/javascript; charset=utf-8",
-		"etag": "\"28139-480c+7zAwR1pcB9Kdt4lR+EFDq8\"",
-		"mtime": "2026-07-08T12:29:37.310Z",
-		"size": 164153,
-		"path": "../public/assets/routes-BVT7FvhC.js"
-	},
-	"/assets/venue-COewdM9j.jpg": {
-		"type": "image/jpeg",
-		"etag": "\"29e8a-V8zkyOkrTOPlywsvYnQ3aBuR28M\"",
-		"mtime": "2026-07-08T12:29:37.353Z",
-		"size": 171658,
-		"path": "../public/assets/venue-COewdM9j.jpg"
 	},
 	"/assets/wedding-couple-BWZwjw2S.jpeg": {
 		"type": "image/jpeg",
 		"etag": "\"18a43-iyAF5nA80eG52Wk5I9yV5xjntVE\"",
-		"mtime": "2026-07-08T12:29:37.354Z",
+		"mtime": "2026-07-08T12:45:17.031Z",
 		"size": 100931,
 		"path": "../public/assets/wedding-couple-BWZwjw2S.jpeg"
+	},
+	"/assets/venue-COewdM9j.jpg": {
+		"type": "image/jpeg",
+		"etag": "\"29e8a-V8zkyOkrTOPlywsvYnQ3aBuR28M\"",
+		"mtime": "2026-07-08T12:45:17.031Z",
+		"size": 171658,
+		"path": "../public/assets/venue-COewdM9j.jpg"
+	},
+	"/assets/routes-BVT7FvhC.js": {
+		"type": "text/javascript; charset=utf-8",
+		"etag": "\"28139-480c+7zAwR1pcB9Kdt4lR+EFDq8\"",
+		"mtime": "2026-07-08T12:45:17.016Z",
+		"size": 164153,
+		"path": "../public/assets/routes-BVT7FvhC.js"
+	},
+	"/assets/index-BEN1_vOs.js": {
+		"type": "text/javascript; charset=utf-8",
+		"etag": "\"544d4-0ojddGQqJONUoa+799ekypXG//U\"",
+		"mtime": "2026-07-08T12:45:17.016Z",
+		"size": 345300,
+		"path": "../public/assets/index-BEN1_vOs.js"
 	},
 	"/assets/olive-wreath-DagMLBVn.png": {
 		"type": "image/png",
 		"etag": "\"8b8cb-rna5j+qNm/WyO1TOAF+CFGmi4Z4\"",
-		"mtime": "2026-07-08T12:29:37.352Z",
+		"mtime": "2026-07-08T12:45:17.028Z",
 		"size": 571595,
 		"path": "../public/assets/olive-wreath-DagMLBVn.png"
 	}
