@@ -2,20 +2,5 @@
   command = "npm run build"
   publish = "dist"
 
-[dev]
-  command = "npm run dev"
-  targetPort = 8080
-  port = 8888
-
-
-[[redirects]]
-  from = "/assets/*"
-  to = "/assets/:splat"
-  status = 200
-  force = true
-
-
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server"
-  status = 200
+[functions]
+  directory = ".netlify/functions-internal"
