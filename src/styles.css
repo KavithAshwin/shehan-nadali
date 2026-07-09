@@ -144,6 +144,127 @@
   background: var(--gradient-hero);
 }
 
+/* ---------- Apple Liquid Glass system ---------- */
+
+@keyframes sheen-sweep {
+  0%,
+  60% {
+    transform: translateX(-80%) rotate(0.001deg);
+  }
+  90%,
+  100% {
+    transform: translateX(80%) rotate(0.001deg);
+  }
+}
+
+@keyframes glass-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Light liquid glass — for panels over imagery / cream */
+@utility glass-liquid {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(
+    135deg,
+    oklch(1 0 0 / 0.22),
+    oklch(1 0 0 / 0.06) 42%,
+    oklch(1 0 0 / 0.14)
+  );
+  backdrop-filter: blur(26px) saturate(200%) brightness(1.08);
+  -webkit-backdrop-filter: blur(26px) saturate(200%) brightness(1.08);
+  border: 1px solid oklch(1 0 0 / 0.32);
+  box-shadow:
+    inset 0 1.25px 0 0 oklch(1 0 0 / 0.6),
+    inset 0 -1px 1px 0 oklch(1 0 0 / 0.12),
+    inset 1px 0 0 0 oklch(1 0 0 / 0.2),
+    inset -1px 0 0 0 oklch(1 0 0 / 0.08),
+    0 28px 70px -28px oklch(0.24 0.04 120 / 0.6);
+}
+
+/* Deep liquid glass — olive-tinted, for dark scenes and the dock */
+@utility glass-liquid-deep {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(
+    135deg,
+    oklch(0.4 0.055 120 / 0.5),
+    oklch(0.32 0.05 120 / 0.28) 50%,
+    oklch(0.38 0.055 120 / 0.42)
+  );
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid oklch(1 0 0 / 0.22);
+  box-shadow:
+    inset 0 1.25px 0 0 oklch(1 0 0 / 0.38),
+    inset 0 -1px 1px 0 oklch(1 0 0 / 0.06),
+    inset 1px 0 0 0 oklch(1 0 0 / 0.12),
+    0 24px 60px -20px oklch(0.16 0.03 120 / 0.7);
+}
+
+/* Specular light sweep across a glass surface */
+@utility glass-sheen {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -60% -40%;
+    background: linear-gradient(
+      115deg,
+      transparent 43%,
+      oklch(1 0 0 / 0.3) 50%,
+      transparent 57%
+    );
+    transform: translateX(-80%);
+    animation: sheen-sweep 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+/* Soft refraction rim glow that breathes */
+@utility glass-rim {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      160deg,
+      oklch(1 0 0 / 0.8),
+      oklch(1 0 0 / 0.05) 35%,
+      oklch(0.72 0.11 85 / 0.4) 70%,
+      oklch(1 0 0 / 0.35)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: glass-breathe 5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-sheen::after,
+  .glass-rim::before {
+    animation: none;
+  }
+}
+
 @utility text-balance {
   text-wrap: balance;
 }
