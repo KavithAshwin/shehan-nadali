@@ -1,5 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+  useMotionValue,
+  useSpring,
+  useMotionTemplate,
+} from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import {
   Calendar,
@@ -7,7 +15,7 @@ import {
   Phone,
   Clock,
   Heart,
-  Sparkles,
+  Users,
   ChevronDown,
   Navigation,
 } from "lucide-react";
@@ -21,6 +29,7 @@ export const Route = createFileRoute("/")({
 });
 
 const WEDDING_DATE = new Date("2026-11-12T10:00:00+05:30");
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 function useCountdown(target: Date) {
   const [now, setNow] = useState(() => new Date());
@@ -36,8 +45,11 @@ function useCountdown(target: Date) {
   return { days, hours, minutes, seconds };
 }
 
+/* ================= SHELL ================= */
+
 function Invitation() {
   const [opened, setOpened] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="min-h-screen w-full bg-[oklch(0.9_0.03_95)] flex items-center justify-center p-0 sm:p-6">
@@ -53,8 +65,11 @@ function Invitation() {
       </div>
 
       {/* Phone frame */}
-      <div className="relative w-full max-w-[440px] sm:max-w-[400px] sm:rounded-[3rem] sm:border sm:border-beige-deep/40 sm:shadow-[0_40px_120px_-30px_oklch(0.36_0.055_120_/_0.45)] overflow-hidden bg-background">
-        <div className="relative w-full min-h-screen sm:min-h-0 sm:h-[860px] overflow-y-auto overflow-x-hidden scroll-smooth snap-y snap-mandatory">
+      <div className="relative w-full max-w-[440px] sm:max-w-[400px] sm:rounded-[3rem] sm:border sm:border-beige-deep/40 sm:shadow-[0_40px_120px_-30px_oklch(0.36_0.055_120_/_0.45)] overflow-hidden bg-olive-deep">
+        <div
+          ref={scrollRef}
+          className="relative w-full min-h-screen sm:min-h-0 sm:h-[860px] overflow-y-auto overflow-x-hidden scroll-smooth snap-y snap-proximity"
+        >
           <AnimatePresence mode="wait">
             {!opened ? (
               <Envelope key="env" onOpen={() => setOpened(true)} />
@@ -63,246 +78,110 @@ function Invitation() {
             )}
           </AnimatePresence>
         </div>
+
+        {/* Floating liquid-glass dock */}
+        <AnimatePresence>
+          {opened && <GlassDock scrollRef={scrollRef} />}
+        </AnimatePresence>
       </div>
     </div>
   );
 }
 
-/* ---------------- ENVELOPE ---------------- */
+/* ================= GRAIN ================= */
 
-function Envelope({ onOpen }: { onOpen: () => void }) {
+function Grain({ opacity = 0.1 }: { opacity?: number }) {
   return (
-    <motion.section
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.05, filter: "blur(12px)", transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } }}
-      className="relative w-full min-h-screen sm:h-[860px] hero-bg flex flex-col items-center justify-center px-6 text-center overflow-hidden"
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 mix-blend-overlay"
+      style={{
+        opacity,
+        backgroundImage:
+          "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0 0.7 0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>\")",
+      }}
+    />
+  );
+}
+
+/* ================= ORNAMENTS ================= */
+
+function Monogram({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 96 96"
+      fill="none"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
     >
-      <motion.img
-        src={oliveHero}
-        alt=""
-        aria-hidden
-        initial={{ scale: 1.15 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 6, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute inset-0 h-full w-full object-cover opacity-50 mix-blend-multiply"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-cream/50 via-cream/10 to-cream/90" />
-
-      {/* Aurora blobs */}
-      <motion.div
-        aria-hidden
-        className="absolute -top-24 -left-16 h-80 w-80 rounded-full"
-        style={{
-          background: "radial-gradient(circle, oklch(0.72 0.11 85 / 0.45), transparent 70%)",
-          filter: "blur(30px)",
-        }}
-        animate={{ x: [0, 30, 0], y: [0, 20, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        aria-hidden
-        className="absolute -bottom-24 -right-16 h-96 w-96 rounded-full"
-        style={{
-          background: "radial-gradient(circle, oklch(0.5 0.07 118 / 0.4), transparent 70%)",
-          filter: "blur(40px)",
-        }}
-        animate={{ x: [0, -25, 0], y: [0, -15, 0], scale: [1, 1.15, 1] }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* Floating particles */}
-      {[...Array(8)].map((_, i) => (
-        <motion.div
-          key={i}
-          aria-hidden
-          className="absolute h-1.5 w-1.5 rounded-full bg-gold/60"
-          style={{
-            left: `${10 + i * 11}%`,
-            top: `${20 + (i % 3) * 25}%`,
-            boxShadow: "0 0 12px oklch(0.72 0.11 85 / 0.6)",
-          }}
-          animate={{ y: [0, -30, 0], opacity: [0.3, 0.9, 0.3], scale: [1, 1.4, 1] }}
-          transition={{ duration: 4 + (i % 4), repeat: Infinity, delay: i * 0.4, ease: "easeInOut" }}
-        />
-      ))}
-
-      <motion.div
-        initial="hidden"
-        animate="show"
-        variants={{
-          hidden: {},
-          show: { transition: { staggerChildren: 0.18, delayChildren: 0.2 } },
-        }}
-        className="relative z-10 flex flex-col items-center gap-7"
+      <circle cx="48" cy="48" r="46" stroke="currentColor" strokeWidth="0.75" opacity="0.75" />
+      <circle cx="48" cy="48" r="41" stroke="currentColor" strokeWidth="0.5" opacity="0.45" />
+      <text
+        x="48"
+        y="55"
+        textAnchor="middle"
+        fontFamily="Cormorant Garamond, serif"
+        fontStyle="italic"
+        fontSize="30"
+        fill="currentColor"
       >
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, y: -12 },
-            show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
-          }}
-          className="glass rounded-full px-5 py-2 flex items-center gap-2.5"
-        >
-          <motion.div
-            animate={{ rotate: [0, 20, -20, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Sparkles className="h-3.5 w-3.5 text-gold" strokeWidth={1.5} />
-          </motion.div>
-          <span className="text-[10px] uppercase tracking-[0.4em] text-olive-deep">
-            Wedding Invitation
-          </span>
-          <motion.div
-            animate={{ rotate: [0, -20, 20, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-          >
-            <Sparkles className="h-3.5 w-3.5 text-gold" strokeWidth={1.5} />
-          </motion.div>
-        </motion.div>
-
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, scale: 0.85 },
-            show: { opacity: 1, scale: 1, transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] } },
-          }}
-          className="relative flex items-center justify-center py-6"
-        >
-          <motion.img
-            src={oliveWreath}
-            alt=""
-            aria-hidden
-            className="absolute h-72 w-72 object-contain opacity-90"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 140, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            aria-hidden
-            className="absolute h-56 w-56 rounded-full"
-            style={{
-              background: "radial-gradient(circle, oklch(1 0 0 / 0.7), oklch(0.94 0.03 90 / 0.3) 60%, transparent 75%)",
-              filter: "blur(6px)",
-            }}
-            animate={{ scale: [1, 1.06, 1], opacity: [0.6, 0.9, 0.6] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <div className="glass relative z-10 flex flex-col items-center rounded-3xl px-8 py-6">
-            <span className="font-script text-3xl text-olive leading-none">
-              you're invited
-            </span>
-            <h1 className="font-display italic text-[44px] leading-[1.05] text-olive-deep mt-2 whitespace-nowrap">
-              Shehan
-              <span className="mx-2 font-script not-italic text-gold text-4xl">&</span>
-              Nadali
-            </h1>
-            <div className="mt-3 flex items-center gap-3">
-              <div className="h-px w-6 bg-olive-deep/40" />
-              <span className="text-[9px] uppercase tracking-[0.45em] text-olive-deep/70">
-                Nov · 12 · 2026
-              </span>
-              <div className="h-px w-6 bg-olive-deep/40" />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.p
-          variants={{
-            hidden: { opacity: 0, y: 10 },
-            show: { opacity: 1, y: 0, transition: { duration: 0.9 } },
-          }}
-          className="text-[11px] uppercase tracking-[0.4em] text-olive/70 max-w-[240px]"
-        >
-          A celebration of love · Solis Hotel, Matara
-        </motion.p>
-
-        <motion.button
-          variants={{
-            hidden: { opacity: 0, y: 20 },
-            show: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } },
-          }}
-          onClick={onOpen}
-          whileHover={{ scale: 1.04, y: -2 }}
-          whileTap={{ scale: 0.96 }}
-          className="glass group relative mt-2 rounded-full px-8 py-3.5 text-olive-deep flex items-center gap-3 text-sm tracking-[0.15em] overflow-hidden"
-        >
-          <motion.span
-            aria-hidden
-            className="absolute inset-y-0 -left-1/2 w-1/2"
-            style={{
-              background: "linear-gradient(90deg, transparent, oklch(1 0 0 / 0.6), transparent)",
-            }}
-            animate={{ x: ["0%", "400%"] }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
-          />
-          <motion.span
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-            className="relative"
-          >
-            <Heart className="h-4 w-4 fill-olive-deep" strokeWidth={0} />
-          </motion.span>
-          <span className="relative">Open Invitation</span>
-        </motion.button>
-
-        <motion.div
-          variants={{
-            hidden: { opacity: 0 },
-            show: { opacity: 1, transition: { duration: 1, delay: 0.4 } },
-          }}
-          className="flex flex-col items-center gap-1.5 text-olive-deep/50"
-        >
-          <span className="text-[9px] uppercase tracking-[0.4em]">tap to reveal</span>
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <ChevronDown className="h-4 w-4" />
-          </motion.div>
-        </motion.div>
-      </motion.div>
-    </motion.section>
+        S·N
+      </text>
+      <text
+        x="48"
+        y="74"
+        textAnchor="middle"
+        fontFamily="Inter, sans-serif"
+        fontSize="6"
+        letterSpacing="3"
+        fill="currentColor"
+        opacity="0.8"
+      >
+        MMXXVI
+      </text>
+    </svg>
   );
 }
 
-/* ---------------- CONTENT ---------------- */
-
-function Content() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
+function OliveSprig({ className = "" }: { className?: string }) {
   return (
-    <motion.div
-      ref={scrollRef}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1, transition: { duration: 0.8 } }}
-      className="relative"
-    >
-      <HeroSection />
-      <PortraitSection />
-      <CoupleSection />
-      <CountdownSection />
-      <CeremonySection />
-      <VenueSection />
-      <FamilySection />
-      <ClosingSection />
-    </motion.div>
+    <svg aria-hidden viewBox="0 0 120 24" fill="none" className={className}>
+      <path d="M4 12 H 116" stroke="currentColor" strokeWidth="0.75" opacity="0.5" />
+      <g transform="translate(60 12)">
+        <path
+          d="M-14 0 C -8 -7, 8 -7, 14 0 C 8 7, -8 7, -14 0 Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="0.75"
+        />
+        <ellipse cx="-20" cy="-1.5" rx="4.5" ry="2" fill="currentColor" opacity="0.55" transform="rotate(-18 -20 -1.5)" />
+        <ellipse cx="20" cy="-1.5" rx="4.5" ry="2" fill="currentColor" opacity="0.55" transform="rotate(18 20 -1.5)" />
+        <circle r="1.4" fill="currentColor" />
+      </g>
+    </svg>
   );
 }
 
-/* ---------------- SECTIONS ---------------- */
+/* ================= KINETIC TYPE ================= */
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-
-function SplitWord({ word, delay = 0 }: { word: string; delay?: number }) {
+function SplitWord({
+  word,
+  delay = 0,
+  className = "",
+}: {
+  word: string;
+  delay?: number;
+  className?: string;
+}) {
   return (
-    <span className="inline-flex overflow-hidden pb-2">
+    <span className={`inline-flex overflow-hidden pb-2 ${className}`}>
       {word.split("").map((ch, i) => (
         <motion.span
           key={i}
-          initial={{ y: "110%", opacity: 0, filter: "blur(8px)" }}
+          initial={{ y: "115%", opacity: 0, filter: "blur(6px)" }}
           animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
-          transition={{
-            duration: 1.1,
-            delay: delay + i * 0.06,
-            ease: EASE,
-          }}
+          transition={{ duration: 1.1, delay: delay + i * 0.055, ease: EASE }}
           className="inline-block"
         >
           {ch}
@@ -312,37 +191,289 @@ function SplitWord({ word, delay = 0 }: { word: string; delay?: number }) {
   );
 }
 
+/* ================= ENVELOPE ================= */
+
+function Envelope({ onOpen }: { onOpen: () => void }) {
+  return (
+    <motion.section
+      initial={{ opacity: 1 }}
+      exit={{
+        opacity: 0,
+        scale: 1.06,
+        filter: "blur(14px)",
+        transition: { duration: 0.9, ease: EASE },
+      }}
+      className="relative w-full min-h-screen sm:h-[860px] flex flex-col items-center justify-center px-7 text-center overflow-hidden bg-olive-deep"
+    >
+      {/* Blurred portrait wash behind the glass */}
+      <motion.img
+        src={coupleAsset}
+        alt=""
+        aria-hidden
+        initial={{ scale: 1.2 }}
+        animate={{ scale: 1.05 }}
+        transition={{ duration: 9, ease: EASE }}
+        className="absolute inset-0 h-full w-full object-cover opacity-45"
+        style={{ filter: "blur(6px) saturate(1.1)" }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-olive-deep/70 via-olive-deep/25 to-olive-deep/90" />
+      <div className="absolute inset-0 bg-[radial-gradient(90%_60%_at_50%_0%,oklch(0.72_0.11_85_/_0.14),transparent_60%)]" />
+      <Grain opacity={0.09} />
+
+      {/* Drifting light orbs, seen through the glass */}
+      <motion.div
+        aria-hidden
+        className="absolute -top-20 -left-16 h-72 w-72 rounded-full"
+        style={{
+          background: "radial-gradient(circle, oklch(0.72 0.11 85 / 0.35), transparent 70%)",
+          filter: "blur(50px)",
+        }}
+        animate={{ x: [0, 34, 0], y: [0, 18, 0] }}
+        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        aria-hidden
+        className="absolute -bottom-24 -right-16 h-80 w-80 rounded-full"
+        style={{
+          background: "radial-gradient(circle, oklch(0.6 0.08 118 / 0.45), transparent 70%)",
+          filter: "blur(60px)",
+        }}
+        animate={{ x: [0, -26, 0], y: [0, -16, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.16, delayChildren: 0.25 } } }}
+        className="relative z-10 flex w-full flex-col items-center gap-8"
+      >
+        {/* Floating liquid-glass invitation card */}
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 34, scale: 0.94 },
+            show: { opacity: 1, y: 0, scale: 1, transition: { duration: 1.3, ease: EASE } },
+          }}
+          className="relative w-full max-w-[318px]"
+        >
+          <motion.div
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="glass-liquid glass-rim glass-sheen relative rounded-[2rem] px-8 pb-9 pt-10 text-cream"
+          >
+            {/* Rotating wreath behind the names */}
+            <motion.img
+              src={oliveWreath}
+              alt=""
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-64 w-64 -translate-y-1/2 object-contain opacity-25"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 160, repeat: Infinity, ease: "linear" }}
+            />
+
+            <Monogram className="relative z-10 mx-auto h-14 w-14 text-gold" />
+
+            <p className="relative z-10 mt-6 text-[9px] uppercase tracking-[0.55em] text-cream/75">
+              The Wedding of
+            </p>
+
+            <h1 className="relative z-10 mt-4 font-display italic text-[44px] leading-[1.04]">
+              Shehan
+            </h1>
+            <span className="relative z-10 block font-script text-3xl leading-none text-gold my-0.5">
+              &
+            </span>
+            <h1 className="relative z-10 font-display italic text-[44px] leading-[1.04]">
+              Nadali
+            </h1>
+
+            <div className="relative z-10 mt-6 flex items-center justify-center gap-3">
+              <span className="h-px w-8 bg-gold/60" />
+              <span className="text-[10px] uppercase tracking-[0.45em] text-cream/85">
+                12 · 11 · 2026
+              </span>
+              <span className="h-px w-8 bg-gold/60" />
+            </div>
+            <p className="relative z-10 mt-2 text-[9px] uppercase tracking-[0.35em] text-cream/55">
+              Solis Hotel · Matara
+            </p>
+          </motion.div>
+        </motion.div>
+
+        {/* Open button — liquid glass pill */}
+        <motion.button
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            show: { opacity: 1, y: 0, transition: { duration: 1, ease: EASE } },
+          }}
+          onClick={onOpen}
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          className="glass-liquid-deep glass-sheen relative rounded-full px-9 py-4 text-cream flex items-center gap-3 text-[12px] uppercase tracking-[0.3em]"
+        >
+          <motion.span
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            className="relative z-10"
+          >
+            <Heart className="h-4 w-4 fill-gold text-gold" strokeWidth={0} />
+          </motion.span>
+          <span className="relative z-10">Open Invitation</span>
+        </motion.button>
+
+        <motion.div
+          variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 1, delay: 0.3 } } }}
+          className="flex flex-col items-center gap-1.5 text-cream/45"
+        >
+          <span className="text-[9px] uppercase tracking-[0.4em]">tap to reveal</span>
+          <motion.div
+            animate={{ y: [0, 5, 0] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ChevronDown className="h-4 w-4" strokeWidth={1} />
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </motion.section>
+  );
+}
+
+/* ================= DOCK ================= */
+
+const DOCK_ITEMS = [
+  { id: "hero", label: "Home", icon: Heart },
+  { id: "countdown", label: "Date", icon: Calendar },
+  { id: "venue", label: "Venue", icon: MapPin },
+  { id: "family", label: "Family", icon: Users },
+] as const;
+
+function GlassDock({
+  scrollRef,
+}: {
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const [active, setActive] = useState("hero");
+
+  useEffect(() => {
+    const root = scrollRef.current;
+    if (!root) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        }
+      },
+      { root, threshold: 0.45 },
+    );
+    for (const item of DOCK_ITEMS) {
+      const el = root.querySelector(`#${item.id}`);
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, [scrollRef]);
+
+  const go = (id: string) => {
+    scrollRef.current
+      ?.querySelector(`#${id}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  return (
+    <motion.nav
+      initial={{ opacity: 0, y: 26, scale: 0.92 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 26 }}
+      transition={{ duration: 0.9, delay: 1.4, ease: EASE }}
+      className="pointer-events-none absolute inset-x-0 bottom-5 z-40 flex justify-center"
+      aria-label="Invitation sections"
+    >
+      <div className="glass-liquid-deep glass-rim pointer-events-auto flex items-center gap-1 rounded-full p-1.5">
+        {DOCK_ITEMS.map((item) => {
+          const Icon = item.icon;
+          const isActive = active === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => go(item.id)}
+              aria-label={item.label}
+              className="relative flex h-11 items-center gap-2 rounded-full px-4 text-cream/80 transition-colors duration-300"
+            >
+              {isActive && (
+                <motion.span
+                  layoutId="dock-pill"
+                  transition={{ type: "spring", stiffness: 350, damping: 32 }}
+                  className="absolute inset-0 rounded-full bg-gold/25 shadow-[inset_0_1px_0_oklch(1_0_0_/_0.4)]"
+                />
+              )}
+              <Icon
+                className={`relative z-10 h-[17px] w-[17px] ${isActive ? "text-gold" : ""}`}
+                strokeWidth={1.5}
+              />
+              <AnimatePresence initial={false}>
+                {isActive && (
+                  <motion.span
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0.35, ease: EASE }}
+                    className="relative z-10 overflow-hidden whitespace-nowrap text-[10px] uppercase tracking-[0.25em] text-cream"
+                  >
+                    {item.label}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </button>
+          );
+        })}
+      </div>
+    </motion.nav>
+  );
+}
+
+/* ================= CONTENT ================= */
+
+function Content() {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 1, ease: EASE } }}
+      className="relative bg-cream"
+    >
+      <HeroSection />
+      <InvitationSection />
+      <PortraitSection />
+      <CountdownSection />
+      <CeremonySection />
+      <VenueSection />
+      <FamilySection />
+      <ClosingSection />
+    </motion.div>
+  );
+}
+
+/* ================= HERO ================= */
+
 function HeroSection() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], [0, 160]);
+  const bgY = useTransform(scrollYProgress, [0, 1], [0, 130]);
   const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, -40]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const veilOpacity = useTransform(scrollYProgress, [0, 1], [0.35, 0.75]);
-
-  const [tick, setTick] = useState(() => new Date());
-  useEffect(() => {
-    const id = setInterval(() => setTick(new Date()), 30000);
-    return () => clearInterval(id);
-  }, []);
-  const timeStr = tick.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const plateY = useTransform(scrollYProgress, [0, 1], [0, -46]);
+  const plateOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
     <section
+      id="hero"
       ref={ref}
       className="relative h-[100svh] w-full snap-start overflow-hidden bg-olive-deep"
     >
-      {/* Backdrop: couple portrait, cinematic */}
+      {/* Portrait backdrop */}
       <motion.div
         style={{ y: bgY, scale: bgScale }}
-        initial={{ scale: 1.18, opacity: 0 }}
+        initial={{ scale: 1.14, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 2.4, ease: EASE }}
         className="absolute inset-0"
@@ -353,456 +484,120 @@ function HeroSection() {
           aria-hidden
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
-        {/* olive foliage layer for texture */}
-        <img
-          src={oliveHero}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full object-cover mix-blend-soft-light opacity-60"
-        />
       </motion.div>
 
-      {/* Cinematic veils */}
-      <motion.div
-        style={{ opacity: veilOpacity }}
-        className="absolute inset-0 bg-gradient-to-b from-olive-deep/60 via-olive-deep/10 to-olive-deep/85"
-      />
-      <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_120%,oklch(0.36_0.055_120_/_0.9),transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(60%_40%_at_50%_0%,oklch(0.72_0.11_85_/_0.25),transparent_70%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-olive-deep/50 via-transparent to-olive-deep/80" />
+      <Grain opacity={0.1} />
 
-      {/* Grain */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.12] mix-blend-overlay pointer-events-none"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0 0.7 0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>\")",
-        }}
-      />
-
-      {/* Aurora orbs */}
+      {/* Glass status pills */}
       <motion.div
-        aria-hidden
-        className="absolute -top-24 -left-16 h-72 w-72 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, oklch(0.72 0.11 85 / 0.55), transparent 70%)",
-          filter: "blur(50px)",
-        }}
-        animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        aria-hidden
-        className="absolute -bottom-32 -right-16 h-96 w-96 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, oklch(0.5 0.07 118 / 0.6), transparent 70%)",
-          filter: "blur(60px)",
-        }}
-        animate={{ x: [0, -30, 0], y: [0, -20, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* Floating specks */}
-      {[...Array(14)].map((_, i) => (
-        <motion.span
-          key={i}
-          aria-hidden
-          className="absolute h-1 w-1 rounded-full bg-gold"
-          style={{
-            left: `${(i * 37) % 100}%`,
-            top: `${(i * 53) % 100}%`,
-            boxShadow: "0 0 10px oklch(0.72 0.11 85 / 0.9)",
-          }}
-          animate={{
-            y: [0, -40, 0],
-            opacity: [0, 0.9, 0],
-          }}
-          transition={{
-            duration: 5 + (i % 5),
-            repeat: Infinity,
-            delay: (i * 0.35) % 6,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-
-      {/* Top status bar */}
-      <motion.div
-        initial={{ y: -30, opacity: 0 }}
+        initial={{ y: -24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1, delay: 0.4, ease: EASE }}
-        className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-5 pt-4"
+        transition={{ duration: 1.1, delay: 0.5, ease: EASE }}
+        className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-5 pt-5"
       >
-        <div className="glass-dark rounded-full px-3 py-1.5 flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
-          <span className="text-[9px] uppercase tracking-[0.35em] text-cream/90">
-            live · {timeStr}
+        <div className="glass-liquid-deep rounded-full px-4 py-2">
+          <span className="text-[9px] uppercase tracking-[0.4em] text-cream/90">
+            S &amp; N
           </span>
         </div>
-        <div className="glass-dark rounded-full px-3 py-1.5">
-          <span className="text-[9px] uppercase tracking-[0.35em] text-cream/90">
-            S · N &nbsp;·&nbsp; MMXXVI
+        <div className="glass-liquid-deep rounded-full px-4 py-2">
+          <span className="text-[9px] uppercase tracking-[0.4em] text-cream/90">
+            MMXXVI
           </span>
         </div>
       </motion.div>
 
-      {/* Corner ornaments */}
-      <svg
-        aria-hidden
-        className="absolute top-16 left-4 h-16 w-16 text-gold/70"
-        viewBox="0 0 64 64"
-        fill="none"
-      >
-        <motion.path
-          d="M2 2 L2 22 M2 2 L22 2"
-          stroke="currentColor"
-          strokeWidth="1"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 1.4, delay: 0.6, ease: EASE }}
-        />
-        <motion.circle
-          cx="2"
-          cy="2"
-          r="2"
-          fill="currentColor"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 1.6 }}
-        />
-      </svg>
-      <svg
-        aria-hidden
-        className="absolute top-16 right-4 h-16 w-16 text-gold/70"
-        viewBox="0 0 64 64"
-        fill="none"
-      >
-        <motion.path
-          d="M62 2 L62 22 M62 2 L42 2"
-          stroke="currentColor"
-          strokeWidth="1"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 1.4, delay: 0.6, ease: EASE }}
-        />
-        <motion.circle
-          cx="62"
-          cy="2"
-          r="2"
-          fill="currentColor"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 1.6 }}
-        />
-      </svg>
-
-      {/* Main content */}
+      {/* Bottom masthead — one liquid glass plate */}
       <motion.div
-        style={{ opacity, y: contentY }}
-        className="relative z-10 flex h-full flex-col items-center justify-end pb-16 px-6 text-center"
+        style={{ y: plateY, opacity: plateOpacity }}
+        className="absolute inset-x-4 bottom-24 z-10"
       >
-        {/* Monogram badge with conic border */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.6, rotate: -20 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ duration: 1.4, delay: 0.2, ease: EASE }}
-          className="relative mb-6"
-        >
-          <motion.div
-            aria-hidden
-            className="absolute -inset-2 rounded-full"
-            style={{
-              background:
-                "conic-gradient(from 0deg, transparent, oklch(0.72 0.11 85 / 0.9), transparent 30%, transparent 60%, oklch(0.72 0.11 85 / 0.6), transparent 90%)",
-              filter: "blur(2px)",
-            }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-          />
-          <div className="glass-dark relative h-16 w-16 rounded-full flex items-center justify-center">
-            <span className="font-display italic text-2xl text-cream">S</span>
-            <span className="font-script text-lg text-gold -mx-0.5">&</span>
-            <span className="font-display italic text-2xl text-cream">N</span>
-          </div>
-        </motion.div>
-
-        <motion.span
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 44 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.4, ease: EASE }}
-          className="font-script text-3xl text-gold"
+          transition={{ duration: 1.4, delay: 0.7, ease: EASE }}
+          className="glass-liquid-deep glass-rim glass-sheen rounded-[2rem] px-7 pb-7 pt-8 text-center text-cream"
         >
-          forever begins
-        </motion.span>
+          <p className="relative z-10 text-[9px] uppercase tracking-[0.55em] text-gold">
+            The Wedding of
+          </p>
 
-        <h1 className="font-display italic text-[64px] leading-[0.95] text-cream mt-3 tracking-tight">
-          <SplitWord word="Shehan" delay={0.55} />
-        </h1>
-        <motion.span
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 1.0, ease: EASE }}
-          className="font-script text-5xl text-gold my-1 drop-shadow-[0_2px_20px_oklch(0.72_0.11_85_/_0.6)]"
-        >
-          &
-        </motion.span>
-        <h1 className="font-display italic text-[64px] leading-[0.95] text-cream tracking-tight">
-          <SplitWord word="Nadali" delay={1.15} />
-        </h1>
-
-        {/* Meta row */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.8, ease: EASE }}
-          className="mt-8 flex items-center gap-3"
-        >
-          <div className="glass-dark rounded-full px-4 py-2 flex items-center gap-2">
-            <Calendar className="h-3 w-3 text-gold" strokeWidth={2} />
-            <span className="text-[10px] uppercase tracking-[0.35em] text-cream">
-              12 · Nov · 26
-            </span>
-          </div>
-          <div className="h-1 w-1 rounded-full bg-gold" />
-          <div className="glass-dark rounded-full px-4 py-2 flex items-center gap-2">
-            <MapPin className="h-3 w-3 text-gold" strokeWidth={2} />
-            <span className="text-[10px] uppercase tracking-[0.35em] text-cream">
-              Matara
-            </span>
-          </div>
-        </motion.div>
-
-        {/* Marquee ticker */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 2.0 }}
-          className="mt-8 w-full overflow-hidden"
-        >
-          <motion.div
-            className="flex gap-8 whitespace-nowrap text-[10px] uppercase tracking-[0.5em] text-cream/50"
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          <h1 className="relative z-10 mt-3 font-display italic text-[52px] leading-[0.98]">
+            <SplitWord word="Shehan" delay={1.0} />
+          </h1>
+          <motion.span
+            initial={{ opacity: 0, scale: 0.4 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, delay: 1.5, ease: EASE }}
+            className="relative z-10 block font-script text-4xl leading-none text-gold"
           >
-            {Array.from({ length: 2 }).map((_, k) => (
-              <div key={k} className="flex gap-8 shrink-0">
-                <span>Poruwa Ceremony</span>
-                <span className="text-gold">✦</span>
-                <span>10:00 AM</span>
-                <span className="text-gold">✦</span>
-                <span>Solis Hotel</span>
-                <span className="text-gold">✦</span>
-                <span>November Twelfth</span>
-                <span className="text-gold">✦</span>
-                <span>Two Thousand Twenty Six</span>
-                <span className="text-gold">✦</span>
-              </div>
-            ))}
-          </motion.div>
-        </motion.div>
+            &
+          </motion.span>
+          <h1 className="relative z-10 font-display italic text-[52px] leading-[0.98]">
+            <SplitWord word="Nadali" delay={1.7} />
+          </h1>
 
-        {/* Scroll cue */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 2.4 }}
-          className="mt-8 flex flex-col items-center gap-2 text-cream/70"
-        >
-          <span className="text-[9px] uppercase tracking-[0.4em]">
-            scroll to explore
-          </span>
-          <div className="relative h-8 w-5 rounded-full border border-cream/40 flex items-start justify-center pt-1.5">
-            <motion.div
-              className="h-1.5 w-1 rounded-full bg-gold"
-              animate={{ y: [0, 12, 0], opacity: [1, 0, 1] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2, delay: 2.4 }}
+            className="relative z-10 mt-5 flex items-center justify-center gap-3 text-cream/90"
+          >
+            <span className="h-px w-9 bg-gold/60" />
+            <span className="text-[10px] uppercase tracking-[0.4em]">
+              12 · 11 · 2026
+            </span>
+            <span className="h-px w-9 bg-gold/60" />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2, delay: 2.7 }}
+            className="relative z-10 mt-2 text-[9px] uppercase tracking-[0.35em] text-cream/60"
+          >
+            Solis Hotel · Matara · Sri Lanka
+          </motion.p>
         </motion.div>
       </motion.div>
     </section>
   );
 }
 
-function PortraitSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const imgY = useTransform(scrollYProgress, [0, 1], [-40, 40]);
-  const frameScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.94, 1, 0.96]);
-  const glowOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 0.8, 0.3]);
+/* ================= INVITATION WORDS ================= */
 
+function InvitationSection() {
   return (
-    <SnapSection className="relative bg-cream overflow-hidden">
-      <div ref={ref} className="relative px-6 py-16">
-        {/* Ambient aurora */}
-        <motion.div
-          aria-hidden
-          style={{ opacity: glowOpacity }}
-          className="absolute inset-x-0 top-10 mx-auto h-72 w-72 rounded-full"
-        >
-          <div
-            className="h-full w-full rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, oklch(0.72 0.11 85 / 0.55), transparent 70%)",
-              filter: "blur(40px)",
-            }}
-          />
-        </motion.div>
-
+    <SnapSection className="relative overflow-hidden bg-cream">
+      <div
+        aria-hidden
+        className="absolute -top-24 right-[-30%] h-80 w-80 rounded-full opacity-60"
+        style={{
+          background: "radial-gradient(circle, oklch(0.72 0.11 85 / 0.25), transparent 70%)",
+          filter: "blur(50px)",
+        }}
+      />
+      <div className="relative px-9 py-24 flex flex-col items-center text-center">
         <FadeUp>
-          <p className="text-center text-[10px] uppercase tracking-[0.4em] text-olive/70">
-            The beloved couple
-          </p>
+          <span className="font-script text-3xl text-olive">
+            together with their families
+          </span>
         </FadeUp>
-        <FadeUp delay={0.1}>
-          <h2 className="font-display italic text-4xl text-center text-olive-deep mt-3">
-            Shehan
-            <span className="mx-2 font-script text-3xl text-gold">&</span>
-            Nadali
+
+        <FadeUp delay={0.12}>
+          <h2 className="mt-6 font-display italic text-[33px] leading-snug text-olive-deep text-balance">
+            request the honour of your presence at the celebration of their
+            marriage
           </h2>
         </FadeUp>
 
-        {/* Portrait frame */}
-        <motion.div
-          style={{ scale: frameScale }}
-          className="relative mt-8 mx-auto max-w-[340px]"
-        >
-          {/* Rotating wreath backdrop */}
-          <motion.img
-            src={oliveWreath}
-            alt=""
-            aria-hidden
-            className="absolute -inset-8 h-[calc(100%+4rem)] w-[calc(100%+4rem)] object-contain opacity-30"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
-          />
-
-          {/* Glass portrait card */}
-          <motion.div
-            initial={{ opacity: 0, y: 40, rotateX: 8 }}
-            whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-            viewport={{ once: true, margin: "-15%" }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className="glass relative rounded-[2rem] p-3 shadow-[0_30px_80px_-20px_oklch(0.36_0.055_120_/_0.35)]"
-            style={{ transformPerspective: 1000 }}
-          >
-            {/* Corner sparkles */}
-            {[
-              { top: "-8px", left: "-8px" },
-              { top: "-8px", right: "-8px" },
-              { bottom: "-8px", left: "-8px" },
-              { bottom: "-8px", right: "-8px" },
-            ].map((pos, i) => (
-              <motion.div
-                key={i}
-                aria-hidden
-                className="absolute h-3 w-3 rounded-full bg-gold"
-                style={{
-                  ...pos,
-                  boxShadow: "0 0 12px oklch(0.72 0.11 85 / 0.9)",
-                }}
-                animate={{ scale: [1, 1.5, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  delay: i * 0.3,
-                  ease: "easeInOut",
-                }}
-              />
-            ))}
-
-            <div className="relative overflow-hidden rounded-[1.6rem] aspect-[4/5]">
-              <motion.img
-                src={coupleAsset}
-                alt="Shehan and Nadali in traditional wedding attire"
-                loading="lazy"
-                style={{ y: imgY }}
-                className="absolute inset-0 h-full w-full object-cover object-center"
-              />
-              {/* Shimmer sweep */}
-              <motion.div
-                aria-hidden
-                className="absolute inset-y-0 -left-1/3 w-1/3 pointer-events-none"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent, oklch(1 0 0 / 0.35), transparent)",
-                }}
-                animate={{ x: ["0%", "500%"] }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  repeatDelay: 3,
-                }}
-              />
-              {/* Bottom gradient */}
-              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-olive-deep/50 to-transparent" />
-              {/* Ornament chip */}
-              <div className="absolute inset-x-0 bottom-3 flex justify-center">
-                <div className="glass rounded-full px-4 py-1.5 flex items-center gap-2">
-                  <Heart
-                    className="h-3 w-3 text-gold fill-gold"
-                    strokeWidth={0}
-                  />
-                  <span className="text-[9px] uppercase tracking-[0.4em] text-olive-deep">
-                    Forever
-                  </span>
-                  <Heart
-                    className="h-3 w-3 text-gold fill-gold"
-                    strokeWidth={0}
-                  />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        <FadeUp delay={0.4}>
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <div className="h-px w-10 bg-olive/40" />
-            <span className="font-script text-2xl text-olive">two souls, one story</span>
-            <div className="h-px w-10 bg-olive/40" />
-          </div>
-        </FadeUp>
-      </div>
-    </SnapSection>
-  );
-}
-
-function CoupleSection() {
-  return (
-    <SnapSection className="bg-cream">
-      <div className="px-8 py-20">
-        <FadeUp>
-          <p className="text-center text-[10px] uppercase tracking-[0.4em] text-olive/70">
-            Two hearts · one journey
-          </p>
-        </FadeUp>
-        <FadeUp delay={0.1}>
-          <h2 className="font-display italic text-4xl text-center text-olive-deep mt-4 leading-tight text-balance">
-            "And in her smile I see something more beautiful than the stars."
-          </h2>
-        </FadeUp>
-        <FadeUp delay={0.2}>
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <div className="h-px w-10 bg-olive/40" />
-            <Heart
-              className="h-3 w-3 text-olive fill-olive"
-              strokeWidth={0}
-            />
-            <div className="h-px w-10 bg-olive/40" />
-          </div>
+        <FadeUp delay={0.24}>
+          <OliveSprig className="mt-10 h-6 w-40 text-gold" />
         </FadeUp>
 
-        <FadeUp delay={0.3}>
-          <div className="glass mt-10 rounded-3xl p-6 text-center">
-            <p className="text-sm leading-relaxed text-ink/80 font-light">
+        <FadeUp delay={0.34}>
+          <div className="glass-liquid glass-rim mt-10 max-w-[320px] rounded-[1.75rem] px-7 py-6">
+            <p className="relative z-10 text-sm leading-[1.9] font-light text-ink/80">
               With hearts full of joy and gratitude, we invite you to share in
               the beginning of our forever. Your presence will be the greatest
               blessing of our special day.
@@ -811,6 +606,129 @@ function CoupleSection() {
         </FadeUp>
       </div>
     </SnapSection>
+  );
+}
+
+/* ================= PORTRAIT (3D tilt glass card) ================= */
+
+function PortraitSection() {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const glareX = useMotionValue(50);
+  const glareY = useMotionValue(30);
+
+  const srx = useSpring(rx, { stiffness: 140, damping: 18 });
+  const sry = useSpring(ry, { stiffness: 140, damping: 18 });
+  const sGlareX = useSpring(glareX, { stiffness: 120, damping: 20 });
+  const sGlareY = useSpring(glareY, { stiffness: 120, damping: 20 });
+
+  const glare = useMotionTemplate`radial-gradient(60% 45% at ${sGlareX}% ${sGlareY}%, oklch(1 0 0 / 0.35), transparent 70%)`;
+
+  const handleMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    ry.set(px * 12);
+    rx.set(-py * 12);
+    glareX.set((px + 0.5) * 100);
+    glareY.set((py + 0.5) * 100);
+  };
+
+  const handleLeave = () => {
+    rx.set(0);
+    ry.set(0);
+    glareX.set(50);
+    glareY.set(30);
+  };
+
+  return (
+    <SnapSection className="relative overflow-hidden bg-cream">
+      <div className="relative px-8 pb-24 pt-6 flex flex-col items-center">
+        <FadeUp>
+          <p className="text-center text-[10px] uppercase tracking-[0.5em] text-gold">
+            The beloved couple
+          </p>
+        </FadeUp>
+        <FadeUp delay={0.1}>
+          <h2 className="mt-4 text-center font-display italic text-4xl text-olive-deep">
+            Shehan
+            <span className="mx-2 font-script text-3xl not-italic text-gold">&</span>
+            Nadali
+          </h2>
+        </FadeUp>
+
+        <FadeUp delay={0.22}>
+          <div style={{ perspective: 900 }} className="mt-10">
+            <motion.div
+              ref={cardRef}
+              onPointerMove={handleMove}
+              onPointerLeave={handleLeave}
+              style={{ rotateX: srx, rotateY: sry, transformStyle: "preserve-3d" }}
+              className="glass-liquid glass-rim relative w-[292px] rounded-[2rem] p-3"
+            >
+              <div className="relative overflow-hidden rounded-[1.55rem] aspect-[3/4]">
+                <img
+                  src={coupleAsset}
+                  alt="Shehan and Nadali in traditional wedding attire"
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+                {/* Pointer-tracked specular glare */}
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0"
+                  style={{ background: glare }}
+                />
+                <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-olive-deep/70 to-transparent" />
+                <div className="absolute inset-x-0 bottom-4 flex justify-center">
+                  <div className="glass-liquid-deep rounded-full px-5 py-2">
+                    <span className="text-[9px] uppercase tracking-[0.45em] text-cream">
+                      Forever
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.34}>
+          <p className="mt-10 max-w-[280px] text-center font-display italic text-xl leading-relaxed text-olive-deep text-balance">
+            "And in her smile I see something more beautiful than the stars."
+          </p>
+        </FadeUp>
+      </div>
+    </SnapSection>
+  );
+}
+
+/* ================= COUNTDOWN ================= */
+
+function RollingDigits({ value }: { value: number }) {
+  const text = String(value).padStart(2, "0");
+  return (
+    <div className="flex justify-center overflow-hidden">
+      {text.split("").map((ch, i) => (
+        <div key={i} className="relative h-[42px] w-[22px] overflow-hidden">
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span
+              key={ch + i + text}
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              exit={{ y: "-100%", opacity: 0 }}
+              transition={{ duration: 0.45, ease: EASE }}
+              className="absolute inset-0 flex items-center justify-center font-display text-[38px] leading-none text-cream tabular-nums"
+            >
+              {ch}
+            </motion.span>
+          </AnimatePresence>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -824,40 +742,34 @@ function CountdownSection() {
   ];
 
   return (
-    <SnapSection className="relative bg-olive-deep text-cream overflow-hidden">
-      <div
+    <SnapSection id="countdown" className="relative overflow-hidden bg-olive-deep text-cream">
+      <img
+        src={oliveHero}
+        alt=""
         aria-hidden
-        className="absolute inset-0 opacity-30"
-        style={{
-          background:
-            "radial-gradient(60% 40% at 30% 20%, oklch(0.6 0.08 118 / 0.6), transparent 70%), radial-gradient(50% 40% at 80% 90%, oklch(0.72 0.11 85 / 0.4), transparent 70%)",
-        }}
+        className="absolute inset-0 h-full w-full object-cover opacity-[0.16]"
       />
-      <div className="relative px-8 py-20">
+      <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_0%,oklch(0.72_0.11_85_/_0.16),transparent_65%)]" />
+      <Grain opacity={0.08} />
+
+      <div className="relative px-7 py-24">
         <FadeUp>
-          <p className="text-center text-[10px] uppercase tracking-[0.4em] text-cream/60">
+          <p className="text-center text-[10px] uppercase tracking-[0.5em] text-gold">
             Counting the moments
           </p>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <h2 className="font-display italic text-4xl text-center mt-3">
-            Until we say <em>I do</em>
+          <h2 className="mt-4 text-center font-display italic text-4xl">
+            Until we say <em>I&nbsp;do</em>
           </h2>
         </FadeUp>
 
-        <div className="mt-10 grid grid-cols-4 gap-3">
+        <div className="mt-12 grid grid-cols-4 gap-2.5">
           {items.map((it, i) => (
-            <FadeUp key={it.label} delay={0.15 + i * 0.08}>
-              <div className="glass-dark rounded-2xl px-2 py-4 text-center">
-                <motion.div
-                  key={it.value}
-                  initial={{ y: -6, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="font-display text-3xl leading-none text-cream"
-                >
-                  {String(it.value).padStart(2, "0")}
-                </motion.div>
-                <div className="text-[9px] uppercase tracking-[0.25em] text-cream/60 mt-2">
+            <FadeUp key={it.label} delay={0.18 + i * 0.08}>
+              <div className="glass-liquid-deep glass-rim rounded-2xl px-1 pb-4 pt-5 text-center">
+                <RollingDigits value={it.value} />
+                <div className="relative z-10 mt-2.5 text-[8px] uppercase tracking-[0.3em] text-cream/55">
                   {it.label}
                 </div>
               </div>
@@ -865,12 +777,11 @@ function CountdownSection() {
           ))}
         </div>
 
-        <FadeUp delay={0.6}>
-          <div className="mt-10 flex items-center justify-center gap-2 text-cream/70">
-            <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} />
-            <span className="text-[11px] uppercase tracking-[0.35em]">
-              Save the date
-            </span>
+        <FadeUp delay={0.55}>
+          <div className="mt-12 flex items-center justify-center gap-4 text-cream/60">
+            <span className="h-px w-8 bg-gold/40" />
+            <span className="text-[10px] uppercase tracking-[0.45em]">Save the date</span>
+            <span className="h-px w-8 bg-gold/40" />
           </div>
         </FadeUp>
       </div>
@@ -878,42 +789,114 @@ function CountdownSection() {
   );
 }
 
+/* ================= CEREMONY ================= */
+
 function CeremonySection() {
+  const rows = [
+    {
+      icon: <Calendar className="h-4 w-4" strokeWidth={1.25} />,
+      label: "The Date",
+      value: "Thursday, November 12",
+      note: "Two thousand twenty six",
+    },
+    {
+      icon: <Clock className="h-4 w-4" strokeWidth={1.25} />,
+      label: "Auspicious Time",
+      value: "10:00 in the morning",
+      note: "Poruwa ceremony",
+    },
+    {
+      icon: <MapPin className="h-4 w-4" strokeWidth={1.25} />,
+      label: "The Venue",
+      value: "Solis Hotel",
+      note: "Matara, Sri Lanka",
+    },
+  ];
+
   return (
     <SnapSection className="bg-cream">
-      <div className="px-8 py-20">
+      <div className="px-8 py-24">
         <FadeUp>
-          <p className="text-center text-[10px] uppercase tracking-[0.4em] text-olive/70">
+          <p className="text-center text-[10px] uppercase tracking-[0.5em] text-gold">
             The ceremony
           </p>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <h2 className="font-display italic text-4xl text-center text-olive-deep mt-3">
+          <h2 className="mt-4 text-center font-display italic text-4xl text-olive-deep">
             Poruwa Ceremony
           </h2>
         </FadeUp>
 
-        <div className="mt-10 space-y-4">
-          <FadeUp delay={0.2}>
-            <InfoCard
-              icon={<Calendar className="h-5 w-5" strokeWidth={1.5} />}
-              label="Date"
-              value="Thursday, November 12"
-            />
-          </FadeUp>
-          <FadeUp delay={0.3}>
-            <InfoCard
-              icon={<Clock className="h-5 w-5" strokeWidth={1.5} />}
-              label="Auspicious Time"
-              value="10:00 AM"
-            />
-          </FadeUp>
-          <FadeUp delay={0.4}>
-            <InfoCard
-              icon={<MapPin className="h-5 w-5" strokeWidth={1.5} />}
-              label="Venue"
-              value="Solis Hotel, Matara"
-            />
+        <div className="relative mx-auto mt-14 max-w-[300px]">
+          <div
+            aria-hidden
+            className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-gold/50 to-transparent"
+          />
+          <div className="space-y-12">
+            {rows.map((row, i) => (
+              <FadeUp key={row.label} delay={0.15 + i * 0.12}>
+                <div className="relative flex flex-col items-center text-center">
+                  <div className="glass-liquid glass-rim relative z-10 flex h-12 w-12 items-center justify-center rounded-full text-olive-deep">
+                    <span className="relative z-10">{row.icon}</span>
+                  </div>
+                  <p className="mt-4 text-[9px] uppercase tracking-[0.45em] text-olive/70">
+                    {row.label}
+                  </p>
+                  <p className="mt-2 font-display italic text-2xl text-olive-deep">
+                    {row.value}
+                  </p>
+                  <p className="mt-1 text-[11px] tracking-[0.15em] text-ink/55">
+                    {row.note}
+                  </p>
+                </div>
+              </FadeUp>
+            ))}
+          </div>
+        </div>
+      </div>
+    </SnapSection>
+  );
+}
+
+/* ================= VENUE ================= */
+
+function VenueSection() {
+  return (
+    <SnapSection id="venue" className="relative overflow-hidden bg-olive-deep">
+      <div className="relative">
+        <img
+          src={venue}
+          alt="Solis Hotel, Matara"
+          loading="lazy"
+          width={1216}
+          height={832}
+          className="h-[580px] w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-olive-deep/25 via-transparent to-olive-deep/70" />
+        <Grain opacity={0.08} />
+
+        <div className="absolute inset-x-4 bottom-6">
+          <FadeUp>
+            <div className="glass-liquid-deep glass-rim glass-sheen rounded-[2rem] px-7 py-7 text-center text-cream">
+              <p className="relative z-10 text-[9px] uppercase tracking-[0.5em] text-gold">
+                The venue
+              </p>
+              <h2 className="relative z-10 mt-3 font-display italic text-4xl">
+                Solis Hotel
+              </h2>
+              <p className="relative z-10 mt-1.5 text-[10px] uppercase tracking-[0.4em] text-cream/70">
+                Matara · Sri Lanka
+              </p>
+              <a
+                href="https://maps.google.com/?q=Solis+Hotel+Matara"
+                target="_blank"
+                rel="noreferrer"
+                className="relative z-10 mt-6 inline-flex items-center gap-3 rounded-full border border-gold/60 bg-gold/10 px-8 py-3 text-[10px] uppercase tracking-[0.35em] text-cream transition-colors duration-300 hover:bg-gold/20"
+              >
+                <Navigation className="h-3.5 w-3.5" strokeWidth={1.25} />
+                Get directions
+              </a>
+            </div>
           </FadeUp>
         </div>
       </div>
@@ -921,83 +904,43 @@ function CeremonySection() {
   );
 }
 
-function VenueSection() {
-  return (
-    <SnapSection className="bg-cream">
-      <div className="px-6 py-16">
-        <FadeUp>
-          <p className="text-center text-[10px] uppercase tracking-[0.4em] text-olive/70">
-            The venue
-          </p>
-        </FadeUp>
-        <FadeUp delay={0.1}>
-          <h2 className="font-display italic text-4xl text-center text-olive-deep mt-3">
-            Solis Hotel
-          </h2>
-        </FadeUp>
-
-        <FadeUp delay={0.2}>
-          <div className="mt-8 relative rounded-3xl overflow-hidden aspect-[4/5]">
-            <img
-              src={venue}
-              alt="Solis Hotel Matara"
-              loading="lazy"
-              width={1216}
-              height={832}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-olive-deep/80 via-olive-deep/10 to-transparent" />
-            <div className="absolute inset-x-4 bottom-4">
-              <div className="glass rounded-2xl p-4">
-                <div className="flex items-center gap-2 text-olive-deep">
-                  <MapPin className="h-4 w-4" strokeWidth={1.5} />
-                  <span className="text-sm font-medium">Matara, Sri Lanka</span>
-                </div>
-                <a
-                  href="https://maps.google.com/?q=Solis+Hotel+Matara"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 flex items-center justify-center gap-2 rounded-full bg-olive-deep text-cream py-2.5 text-xs uppercase tracking-[0.25em]"
-                >
-                  <Navigation className="h-3.5 w-3.5" strokeWidth={1.5} />
-                  Get Directions
-                </a>
-              </div>
-            </div>
-          </div>
-        </FadeUp>
-      </div>
-    </SnapSection>
-  );
-}
+/* ================= FAMILIES ================= */
 
 function FamilySection() {
   return (
-    <SnapSection className="bg-cream">
-      <div className="px-8 py-20">
+    <SnapSection id="family" className="relative overflow-hidden bg-cream">
+      <div
+        aria-hidden
+        className="absolute -bottom-20 left-[-30%] h-80 w-80 rounded-full opacity-60"
+        style={{
+          background: "radial-gradient(circle, oklch(0.6 0.08 118 / 0.22), transparent 70%)",
+          filter: "blur(50px)",
+        }}
+      />
+      <div className="relative px-8 py-24">
         <FadeUp>
-          <p className="text-center text-[10px] uppercase tracking-[0.4em] text-olive/70">
+          <p className="text-center text-[10px] uppercase tracking-[0.5em] text-gold">
             With the blessings of
           </p>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <h2 className="font-display italic text-4xl text-center text-olive-deep mt-3">
+          <h2 className="mt-4 text-center font-display italic text-4xl text-olive-deep">
             Our Families
           </h2>
         </FadeUp>
 
-        <div className="mt-10 space-y-5">
+        <div className="mx-auto mt-12 max-w-[320px] space-y-6">
           <FadeUp delay={0.2}>
             <FamilyCard
-              side="Bride's Parents"
+              side="Parents of the Bride"
               father="Mr. Nandana Rohan"
               mother="Mrs. Champa Rajapaksha"
               phone="077 507 7112"
             />
           </FadeUp>
-          <FadeUp delay={0.3}>
+          <FadeUp delay={0.32}>
             <FamilyCard
-              side="Groom's Parents"
+              side="Parents of the Groom"
               father="Mr. Suranga Lakmal"
               mother="Mrs. Ayesha Liyanage"
               phone="071 481 1715"
@@ -1006,110 +949,6 @@ function FamilySection() {
         </div>
       </div>
     </SnapSection>
-  );
-}
-
-function ClosingSection() {
-  return (
-    <SnapSection className="relative bg-cream overflow-hidden">
-      <img
-        src={oliveHero}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full object-cover opacity-40 mix-blend-multiply scale-x-[-1]"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-cream/60 via-cream/30 to-cream" />
-
-      <div className="relative px-8 py-24 flex flex-col items-center text-center">
-        <FadeUp>
-          <span className="font-script text-3xl text-olive">with love</span>
-        </FadeUp>
-        <FadeUp delay={0.15}>
-          <h2 className="font-display italic text-5xl text-olive-deep mt-2 leading-[1]">
-            See you there
-          </h2>
-        </FadeUp>
-        <FadeUp delay={0.3}>
-          <div className="glass mt-10 rounded-3xl px-8 py-6">
-            <p className="text-xs uppercase tracking-[0.35em] text-olive-deep/70">
-              12 · 11
-            </p>
-            <p className="font-display italic text-3xl text-olive-deep mt-2">
-              Shehan & Nadali
-            </p>
-          </div>
-        </FadeUp>
-        <FadeUp delay={0.5}>
-          <div className="mt-10 flex items-center gap-2 text-olive/70">
-            <div className="h-px w-8 bg-olive/40" />
-            <Heart
-              className="h-3 w-3 text-olive fill-olive"
-              strokeWidth={0}
-            />
-            <div className="h-px w-8 bg-olive/40" />
-          </div>
-        </FadeUp>
-      </div>
-    </SnapSection>
-  );
-}
-
-/* ---------------- SHARED ---------------- */
-
-function SnapSection({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section className={`snap-start w-full ${className}`}>{children}</section>
-  );
-}
-
-function FadeUp({
-  children,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-10%" }}
-      transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function InfoCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="glass rounded-2xl p-5 flex items-center gap-4">
-      <div className="h-12 w-12 rounded-full bg-olive-deep text-cream flex items-center justify-center flex-shrink-0">
-        {icon}
-      </div>
-      <div className="flex-1">
-        <p className="text-[10px] uppercase tracking-[0.3em] text-olive/70">
-          {label}
-        </p>
-        <p className="font-display italic text-xl text-olive-deep mt-0.5">
-          {value}
-        </p>
-      </div>
-    </div>
   );
 }
 
@@ -1125,22 +964,120 @@ function FamilyCard({
   phone: string;
 }) {
   return (
-    <div className="glass rounded-3xl p-6">
-      <p className="text-[10px] uppercase tracking-[0.35em] text-olive/70 text-center">
+    <div className="glass-liquid glass-rim rounded-[1.9rem] px-7 py-7 text-center">
+      <p className="relative z-10 text-[9px] uppercase tracking-[0.45em] text-olive/70">
         {side}
       </p>
-      <div className="mt-4 space-y-1 text-center">
-        <p className="font-display italic text-lg text-olive-deep">{father}</p>
-        <p className="font-script text-xl text-gold">&</p>
-        <p className="font-display italic text-lg text-olive-deep">{mother}</p>
-      </div>
+      <p className="relative z-10 mt-4 font-display italic text-[21px] leading-snug text-olive-deep">
+        {father}
+      </p>
+      <span className="relative z-10 block font-script text-xl leading-none text-gold my-1">
+        &
+      </span>
+      <p className="relative z-10 font-display italic text-[21px] leading-snug text-olive-deep">
+        {mother}
+      </p>
       <a
         href={`tel:${phone.replace(/\s/g, "")}`}
-        className="mt-5 flex items-center justify-center gap-2 rounded-full bg-cream/60 border border-olive/20 py-2.5 text-olive-deep text-sm"
+        className="glass-liquid-deep relative z-10 mt-5 inline-flex items-center gap-2.5 rounded-full px-6 py-2.5 text-[11px] tracking-[0.25em] text-cream transition-transform duration-300 active:scale-95"
       >
-        <Phone className="h-3.5 w-3.5" strokeWidth={1.5} />
+        <Phone className="h-3 w-3" strokeWidth={1.5} />
         {phone}
       </a>
     </div>
+  );
+}
+
+/* ================= CLOSING ================= */
+
+function ClosingSection() {
+  return (
+    <SnapSection className="relative overflow-hidden bg-olive-deep text-cream">
+      <img
+        src={oliveHero}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 h-full w-full object-cover opacity-[0.14]"
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_30%,transparent,oklch(0.28_0.05_120_/_0.75))]" />
+      <Grain opacity={0.08} />
+
+      <div className="relative flex flex-col items-center px-9 pb-28 pt-24 text-center">
+        <FadeUp>
+          <div className="glass-liquid-deep glass-rim glass-sheen rounded-full p-5">
+            <Monogram className="relative z-10 h-20 w-20 text-gold" />
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.15}>
+          <span className="mt-9 block font-script text-3xl text-gold">with love</span>
+        </FadeUp>
+        <FadeUp delay={0.25}>
+          <h2 className="mt-2 font-display italic text-5xl leading-tight">
+            See you there
+          </h2>
+        </FadeUp>
+
+        <FadeUp delay={0.35}>
+          <div className="mt-8 flex items-center gap-4 text-cream/85">
+            <span className="h-px w-9 bg-gold/50" />
+            <span className="text-[11px] uppercase tracking-[0.4em]">12 · 11 · 2026</span>
+            <span className="h-px w-9 bg-gold/50" />
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.45}>
+          <p className="mt-4 font-display italic text-2xl text-cream/95">
+            Shehan & Nadali
+          </p>
+        </FadeUp>
+
+        <FadeUp delay={0.55}>
+          <div className="mt-14 flex flex-col items-center gap-2">
+            <Heart className="h-3 w-3 fill-gold text-gold" strokeWidth={0} />
+            <p className="text-[8px] uppercase tracking-[0.4em] text-cream/45">
+              Concept &amp; Designed by Kavith Ashwin
+            </p>
+          </div>
+        </FadeUp>
+      </div>
+    </SnapSection>
+  );
+}
+
+/* ================= SHARED ================= */
+
+function SnapSection({
+  children,
+  className = "",
+  id,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  return (
+    <section id={id} className={`snap-start w-full ${className}`}>
+      {children}
+    </section>
+  );
+}
+
+function FadeUp({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-10%" }}
+      transition={{ duration: 1, delay, ease: EASE }}
+    >
+      {children}
+    </motion.div>
   );
 }
