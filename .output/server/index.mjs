@@ -18,63 +18,70 @@ var public_assets_data_default = {
 	"/favicon.svg": {
 		"type": "image/svg+xml",
 		"etag": "\"2532-P1u486agW3ymimJYHS3VvIiBLK8\"",
-		"mtime": "2026-07-08T07:56:48.368Z",
+		"mtime": "2026-07-09T11:11:39.040Z",
 		"size": 9522,
 		"path": "../public/favicon.svg"
 	},
 	"/icons.svg": {
 		"type": "image/svg+xml",
-		"etag": "\"13a7-+Yl6wl4T3p6mAdLxrF2TU9++/No\"",
-		"mtime": "2026-07-08T07:56:48.407Z",
-		"size": 5031,
+		"etag": "\"13bf-M4VJ6uJb+q9LUqAEgRyRPIsZFaI\"",
+		"mtime": "2026-07-09T11:11:39.041Z",
+		"size": 5055,
 		"path": "../public/icons.svg"
-	},
-	"/assets/routes-BVT7FvhC.js": {
-		"type": "text/javascript; charset=utf-8",
-		"etag": "\"28139-480c+7zAwR1pcB9Kdt4lR+EFDq8\"",
-		"mtime": "2026-07-08T14:13:37.846Z",
-		"size": 164153,
-		"path": "../public/assets/routes-BVT7FvhC.js"
 	},
 	"/assets/olive-hero-K_nx2phI.jpg": {
 		"type": "image/jpeg",
 		"etag": "\"1a0fd-meNUuzIL6Rz8I/RiffPDWupuSJ8\"",
-		"mtime": "2026-07-08T14:13:37.847Z",
+		"mtime": "2026-07-09T18:06:53.707Z",
 		"size": 106749,
 		"path": "../public/assets/olive-hero-K_nx2phI.jpg"
 	},
 	"/assets/index-BEN1_vOs.js": {
 		"type": "text/javascript; charset=utf-8",
 		"etag": "\"544d4-0ojddGQqJONUoa+799ekypXG//U\"",
-		"mtime": "2026-07-08T14:13:37.845Z",
+		"mtime": "2026-07-09T18:06:53.691Z",
 		"size": 345300,
 		"path": "../public/assets/index-BEN1_vOs.js"
 	},
-	"/assets/wedding-couple-BWZwjw2S.jpeg": {
-		"type": "image/jpeg",
-		"etag": "\"18a43-iyAF5nA80eG52Wk5I9yV5xjntVE\"",
-		"mtime": "2026-07-08T14:13:37.853Z",
-		"size": 100931,
-		"path": "../public/assets/wedding-couple-BWZwjw2S.jpeg"
+	"/_redirects": {
+		"type": "text/plain; charset=utf-8",
+		"etag": "\"21-W12u6EpqTp107p43bJBC03MbVPQ\"",
+		"mtime": "2026-07-09T11:11:39.037Z",
+		"size": 33,
+		"path": "../public/_redirects"
 	},
 	"/assets/styles-PWrv6qXI.css": {
 		"type": "text/css; charset=utf-8",
 		"etag": "\"14ae2-jRb7zTeQDqjQGYhN0VMCisbdQ20\"",
-		"mtime": "2026-07-08T14:13:37.849Z",
+		"mtime": "2026-07-09T18:06:53.707Z",
 		"size": 84706,
 		"path": "../public/assets/styles-PWrv6qXI.css"
+	},
+	"/assets/routes-BVT7FvhC.js": {
+		"type": "text/javascript; charset=utf-8",
+		"etag": "\"28139-480c+7zAwR1pcB9Kdt4lR+EFDq8\"",
+		"mtime": "2026-07-09T18:06:53.707Z",
+		"size": 164153,
+		"path": "../public/assets/routes-BVT7FvhC.js"
+	},
+	"/assets/wedding-couple-BWZwjw2S.jpeg": {
+		"type": "image/jpeg",
+		"etag": "\"18a43-iyAF5nA80eG52Wk5I9yV5xjntVE\"",
+		"mtime": "2026-07-09T18:06:53.707Z",
+		"size": 100931,
+		"path": "../public/assets/wedding-couple-BWZwjw2S.jpeg"
 	},
 	"/assets/venue-COewdM9j.jpg": {
 		"type": "image/jpeg",
 		"etag": "\"29e8a-V8zkyOkrTOPlywsvYnQ3aBuR28M\"",
-		"mtime": "2026-07-08T14:13:37.852Z",
+		"mtime": "2026-07-09T18:06:53.707Z",
 		"size": 171658,
 		"path": "../public/assets/venue-COewdM9j.jpg"
 	},
 	"/assets/olive-wreath-DagMLBVn.png": {
 		"type": "image/png",
 		"etag": "\"8b8cb-rna5j+qNm/WyO1TOAF+CFGmi4Z4\"",
-		"mtime": "2026-07-08T14:13:37.848Z",
+		"mtime": "2026-07-09T18:06:53.707Z",
 		"size": 571595,
 		"path": "../public/assets/olive-wreath-DagMLBVn.png"
 	}
@@ -114,11 +121,11 @@ var findRouteRules = /* @__PURE__ */ (() => {
 		return r;
 	};
 })();
-var _lazy_8YcYWR = defineLazyEventHandler(() => import("./_chunks/renderer-template.mjs"));
+var _lazy_lkDWd0 = defineLazyEventHandler(() => import("./_chunks/renderer-template.mjs"));
 var findRoute = /* @__PURE__ */ (() => {
 	const data = {
 		route: "/**",
-		handler: _lazy_8YcYWR
+		handler: _lazy_lkDWd0
 	};
 	return ((_m, p) => {
 		return {
