@@ -1,5 +1,16 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
-  nitro: process.env.NETLIFY ? { preset: "netlify" } : false
+  nitro: false,
+  tanstackStart: {
+    prerender: {
+      enabled: true,
+      crawlLinks: true,
+    },
+  },
+  vite: {
+    preview: {
+      host: "127.0.0.1",
+    },
+  },
 });
