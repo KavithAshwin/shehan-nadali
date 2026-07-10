@@ -353,17 +353,21 @@ function GlassDock({
   scrollRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const [active, setActive] = useState("hero");
+  const clickLockUntil = useRef(0);
 
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
     const observer = new IntersectionObserver(
       (entries) => {
+        if (Date.now() < clickLockUntil.current) return;
         for (const entry of entries) {
           if (entry.isIntersecting) setActive(entry.target.id);
         }
       },
-      { root, threshold: 0.45 },
+      // root: null observes against the viewport and correctly accounts
+      // for clipping by the inner scroll container on desktop
+      { root: null, threshold: 0.4 },
     );
     for (const item of DOCK_ITEMS) {
       const el = root.querySelector(`#${item.id}`);
@@ -373,6 +377,10 @@ function GlassDock({
   }, [scrollRef]);
 
   const go = (id: string) => {
+    // Activate immediately on tap, and briefly ignore scroll-spy so
+    // intermediate sections don't flicker the highlight mid-scroll
+    setActive(id);
+    clickLockUntil.current = Date.now() + 1000;
     scrollRef.current
       ?.querySelector(`#${id}`)
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -384,7 +392,7 @@ function GlassDock({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 26 }}
       transition={{ duration: 0.9, delay: 1.4, ease: EASE }}
-      className="pointer-events-none absolute inset-x-0 bottom-5 z-40 flex justify-center"
+      className="pointer-events-none fixed sm:absolute inset-x-0 bottom-5 z-40 flex justify-center"
       aria-label="Invitation sections"
     >
       <div className="glass-liquid-deep glass-rim pointer-events-auto flex items-center gap-1 rounded-full p-1.5">
